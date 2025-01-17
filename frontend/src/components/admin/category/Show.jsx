@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import MainLayout from "../../common/MainLayout";
 import Sidebar from "../../common/Sidebar";
-import { adminToken, API_URL } from "../../../services/ApiService";
+import { apiRequest } from "../../../services/ApiService";
 import { useEffect, useState } from "react";
 import Loading from "../../common/Loading";
 import DataNotFound from "../../common/DataNotFound";
@@ -13,54 +13,36 @@ const Show = () => {
   const [loading, setLoading] = useState(false);
 
   const getCategories = async () => {
-    setLoading(true);
-    const res = await fetch(`${API_URL}/admin/category`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${adminToken()}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setLoading(false);
-        if (result.status == 200) {
-          setCategories(result.data);
-        } else {
-          console.log("Something Went Wrong. Please try again.");
-        }
-      });
-  };
-
-  const deleteCategory = async (id) => {
-    if (confirm("Are Your Sure?")) {
-      const res = await fetch(`${API_URL}/admin/category/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${adminToken()}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          if (result.status == 200) {
-            const newCategories = categories.filter(
-              (category) => category.id != id
-            );
-            setCategories(newCategories);
-            toast.success(result.message);
-          } else {
-            console.log("Something Went Wrong. Please try again.");
-          }
-        });
+    try {
+      const response = await apiRequest(
+        "categories",
+        "GET",
+        null,
+        {},
+        setLoading
+      );
+      setCategories(response.data);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error loading categories. Please try again later.");
     }
   };
-
   useEffect(() => {
     getCategories();
   }, []);
+
+  const deleteCategory = async (id) => {
+    if (confirm("Are Your Sure?")) {
+      try {
+        await apiRequest(`categories/${id}`, "DELETE", null, {}, setLoading);
+        setCategories((prev) => prev.filter((category) => category.id !== id));
+        toast.success("Category deleted successfully.");
+      } catch (error) {
+        console.log(error);
+        toast.error("Failed to delete category.");
+      }
+    }
+  };
 
   return (
     <MainLayout>
@@ -78,8 +60,8 @@ const Show = () => {
           <div className="col-md-9">
             <div className="card shadow">
               <div className="card-body p-4">
-                {loading == true && <Loading />}
-                {loading == false && categories.length == 0 && (
+                {loading === true && <Loading />}
+                {loading === false && categories.length === 0 && (
                   <DataNotFound text="No Category Added Yet!!" />
                 )}
                 {categories && categories.length > 0 && (
@@ -99,7 +81,7 @@ const Show = () => {
                             <td key={category.id}>{category.id}</td>
                             <td>{category.name}</td>
                             <td>
-                              {category.status == 1 ? (
+                              {category.status === 1 ? (
                                 <span className="badge text-bg-success">
                                   Active
                                 </span>

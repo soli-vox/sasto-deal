@@ -25,7 +25,7 @@ const Show = () => {
       .then((res) => res.json())
       .then((result) => {
         setLoading(false);
-        if (result.status == 200) {
+        if (result.status === 200) {
           setBrands(result.data);
         } else {
           console.log("Something Went Wrong. Please try again.");
@@ -45,8 +45,8 @@ const Show = () => {
       })
         .then((res) => res.json())
         .then((result) => {
-          if (result.status == 200) {
-            const newBrands = brands.filter((brand) => brand.id != id);
+          if (result.status === 200) {
+            const newBrands = brands.filter((brand) => brand.id !== id);
             setBrands(newBrands);
             toast.success(result.message);
           } else {
@@ -76,8 +76,8 @@ const Show = () => {
           <div className="col-md-9">
             <div className="card shadow">
               <div className="card-body p-4">
-                {loading == true && <Loading />}
-                {loading == false && brands.length == 0 && (
+                {loading === true && <Loading />}
+                {loading === false && brands.length === 0 && (
                   <DataNotFound text="No Brand Added Yet!!" />
                 )}
                 {brands && brands.length > 0 && (
