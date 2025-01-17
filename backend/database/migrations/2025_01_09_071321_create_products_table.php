@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->double('price');
-            $table->double('compare_price');
+            $table->double('price', 10, 2);
+            $table->double('compare_price', 10, 2)->nullable();
             $table->text('description')->nullable();
             $table->text('short_description')->nullable();
             $table->string('image')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('brand_id')->nullable()->constrained()->onDelete('cascade');
             $table->integer('quantity')->nullable();
             $table->string('sku')->unique();
-            $table->string('bar_code');
+            $table->string('bar_code')->nullable();
             $table->integer('status')->default(1);
             $table->enum('is_featured', ['yes', 'no'])->default('no');
             $table->timestamps();

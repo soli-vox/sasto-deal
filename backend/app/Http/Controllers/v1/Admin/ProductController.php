@@ -22,7 +22,7 @@ class ProductController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "name" => "required",
-            "price" => "required",
+            "price" => "required|numeric",
             "category" => "required|integer",
             "sku" => 'required|unique:products,sku',
             "status" => 'required',
@@ -37,14 +37,16 @@ class ProductController extends Controller
         }
 
         $product = new Product();
-        $product->title = $request->title;
+        $product->name = $request->name;
         $product->price = $request->price;
         $product->compare_price = $request->compare_price;
+        $product->description = $request->description;
+        $product->short_description = $request->short_description;
         $product->category_id = $request->category;
         $product->brand_id = $request->brand;
         $product->sku = $request->sku;
-        $product->description = $request->description;
-        $product->short_description = $request->short_description;
+        $product->bar_code = $request->bar_code;
+        $product->quantity = $request->quantity;
         $product->status = $request->status;
         $product->is_featured = $request->is_featured;
         $product->save();
@@ -87,9 +89,9 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             "name" => "required",
-            "price" => "required",
+            "price" => "required|numeric",
             "category" => "required|integer",
-            "sku" => 'required|unique:products,sku ' . $id . ',id',
+            "sku" => "required|unique:products,sku,'.$id.',id",
             "status" => 'required',
             'is_featured' => 'required'
         ]);
@@ -101,14 +103,16 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product->title = $request->title;
+        $product->name = $request->name;
         $product->price = $request->price;
         $product->compare_price = $request->compare_price;
+        $product->description = $request->description;
+        $product->short_description = $request->short_description;
         $product->category_id = $request->category;
         $product->brand_id = $request->brand;
         $product->sku = $request->sku;
-        $product->description = $request->description;
-        $product->short_description = $request->short_description;
+        $product->bar_code = $request->bar_code;
+        $product->quantity = $request->quantity;
         $product->status = $request->status;
         $product->is_featured = $request->is_featured;
         $product->save();
