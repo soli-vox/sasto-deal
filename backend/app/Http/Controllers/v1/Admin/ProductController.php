@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\v1\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\TempImage;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductController extends Controller
 {
@@ -50,6 +53,36 @@ class ProductController extends Controller
         $product->status = $request->status;
         $product->is_featured = $request->is_featured;
         $product->save();
+
+        if(!empty($request->gallery)){
+            foreach($request->gallery as $key=> $tempImagesId){
+              $tempImage = TempImage::find($tempImagesId);
+
+              //image extension
+                $imageExtArrary = explode('.', $tempImage->name);
+                $imageExtension = end($imageExtArrary);
+                $productImageName = $product->id . '-' . time() . '.' . $imageExtension;
+                
+            //Creating larger thumbnail 
+                $imageManager = new ImageManager(Driver::class);
+                $largeImage = $imageManager->read(public_path('uploads/temp/' . $tempImage->name));
+                $largeImage->scaleDown(1200);
+                $largeImage->save(public_path('uploads/products/large/' . $productImageName));
+
+            //Creating smaller thumbnail
+            $imageManager = new ImageManager(Driver::class);
+            $largeImage = $imageManager->read(public_path('uploads/temp/' . $tempImage->name));
+            $largeImage->coverDown(400,460);
+            $largeImage->save(public_path('uploads/products/small/' . $productImageName));
+
+            //First image of Gallery to be used an main Image of Product
+                if($key == 0){
+                    $product->image = $productImageName;
+                    $product->save();
+                }
+            }
+        }
+
 
         return response()->json([
             'status' => 200,
@@ -116,6 +149,8 @@ class ProductController extends Controller
         $product->status = $request->status;
         $product->is_featured = $request->is_featured;
         $product->save();
+
+        
 
         return response()->json([
             'status' => 200,

@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import MainLayout from "../../common/MainLayout";
 import Sidebar from "../../common/Sidebar";
-import { apiRequest} from "../../../services/ApiService";
+import { apiRequest } from "../../../services/ApiService";
 import { useEffect, useState } from "react";
 import Loading from "../../common/Loading";
 import DataNotFound from "../../common/DataNotFound";
@@ -13,25 +13,32 @@ const Show = () => {
   const [loading, setLoading] = useState(false);
 
   const getCategories = async () => {
-    try{
-
-      const response = await  apiRequest("categories","GET",null,{},setLoading);
+    try {
+      const response = await apiRequest(
+        "categories",
+        "GET",
+        null,
+        {},
+        setLoading
+      );
       setCategories(response.data);
-    }catch (error){
+    } catch (error) {
+      console.log(error);
       toast.error("Error loading categories. Please try again later.");
     }
   };
   useEffect(() => {
-    getCategories()
+    getCategories();
   }, []);
 
   const deleteCategory = async (id) => {
     if (confirm("Are Your Sure?")) {
-      try{
+      try {
         await apiRequest(`categories/${id}`, "DELETE", null, {}, setLoading);
         setCategories((prev) => prev.filter((category) => category.id !== id));
         toast.success("Category deleted successfully.");
-      }catch (error) {
+      } catch (error) {
+        console.log(error);
         toast.error("Failed to delete category.");
       }
     }
