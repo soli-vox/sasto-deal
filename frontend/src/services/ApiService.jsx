@@ -1,4 +1,6 @@
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
+import apiEndpoints from "../config/apiEndpoints.js";
+
 export const API_URL = "http://localhost:8000/api/v1";
 
 export const adminToken = () => {
@@ -6,41 +8,24 @@ export const adminToken = () => {
   return adminInfo?.token || "";
 };
 
-export const apiRequest = async (endpoint, method="GET",body=null, headers={}, setLoading=null) => {
-  const defaultHeaders = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    Authorization: `Bearer ${adminToken()}`,
-  };
-
-  const options = {
-    method,
-    headers: { ...defaultHeaders, ...headers },
-  };
-  if (body) {
-    if (body instanceof FormData) {
-      delete options.headers["Content-Type"];
-      options.body = body;
-    }else {
-      options.body = JSON.stringify(body);
-    }
-  }
+export const apiRequest = async (endpointKey, method = "GET", data = null, headers = {}, setLoading = null)  => {
+  if (setLoading) setLoading(true);
   try{
-    if (setLoading) setLoading(true);
-    const response = await fetch(`${API_URL}/${endpoint}`, options);
-    const result = await response.json();
-    if (!response.ok) {
-      throw result;
-    }
-    return result;
-  }catch (error) {
-    console.error("API Error:", error);
-    if (error.message) {
-      toast.error(error.message);
-    } else {
-      toast.error("Something went wrong. Please try again.");
-    }
-
+    const token = JSON.parse(localStorage.getItem("adminInfo"))?.token || "";
+    const url = apiEndpoints[endpointKey];
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+        ...headers,
+      },
+      body: data ? JSON.stringify(data) : null,
+    });
+    return await response.json();
+  }catch (error){
+    console.error("API Request Error:", error);
     throw error;
   }finally {
     if (setLoading) setLoading(false);

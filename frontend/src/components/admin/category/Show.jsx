@@ -12,30 +12,27 @@ const Show = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const getCategories = async () => {
+    try{
 
-
-
+      const response = await  apiRequest("categories","GET",null,{},setLoading);
+      setCategories(response.data);
+    }catch (error){
+      toast.error("Error loading categories. Please try again later.");
+    }
+  };
   useEffect(() => {
-    const getCategories = async () => {
-      try{
-        setLoading(true);
-        const result = await  apiRequest("admin/category","GET",null,{},setLoading);
-        setCategories(result.data);
-      }catch (error){
-        console.error("Failed to fetch categories:", error);
-      }
-    };
     getCategories()
   }, []);
 
   const deleteCategory = async (id) => {
     if (confirm("Are Your Sure?")) {
       try{
-        await apiRequest(`admin/category/${id}`, "DELETE", null, {}, setLoading);
+        await apiRequest(`categories/${id}`, "DELETE", null, {}, setLoading);
         setCategories((prev) => prev.filter((category) => category.id !== id));
         toast.success("Category deleted successfully.");
       }catch (error) {
-        console.error("Error deleting category:", error);
+        toast.error("Failed to delete category.");
       }
     }
   };
